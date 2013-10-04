@@ -4,8 +4,12 @@ HADOOP_PREFIX=/home/gs/hadoop/current
 HADOOP=$HADOOP_PREFIX/bin/hadoop
 HDFS=$HADOOP_PREFIX/bin/hadoop
 
-WORK=/user/$USER/python-hadoop-streaming
+CODE=/homes/$USER/python-hadoop-streaming/code
+WORK=/homes/$USER/python-hadoop-streaming/work
 DATA=/user/$USER/python-hadoop-streaming/data
+
+
+job_queue=apg_devlarge_p4
 
 set -x
 
@@ -17,18 +21,13 @@ run_cmd () {
 }
 
 train_cmd_st="$HADOOP jar $HADOOP_PREFIX/share/hadoop/tools/lib/hadoop-streaming.jar \
-    -Ddfs.umaskmode=022 \
     -Dmapreduce.job.queuename=$job_queue \
-    -Dmapreduce.job.name=$task_name \
-    -Dmapreduce.job.reduces=$num_models \
-    -Dmapreduce.reduce.memory.mb=8000 \
-    -Dmapreduce.task.timeout=60000000 \
-    -Dstream.num.map.output.key.fields=2 \
-    -Dnum.key.fields.for.partition=1 \
-    -file mapper.py \
-    -file reducer.py \
-    -input $DATA/*.txt \
-    -output $WORK/log \
-    -mapper mapper.py \
-    -reducer reducer.py \
-run_cmd "$train_cmd_st" "$WORK"                                
+    -file    $CODE/mapper.py \
+    -file    $CODE/reducer.py \
+    -input   $DATA/*.txt \
+    -output  $DATA/log \
+    -mapper  $CODE/mapper.py \
+    -reducer $CODE/reducer.py"
+run_cmd "$train_cmd_st" "$CODE"                                
+
+set +x
